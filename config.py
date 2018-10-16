@@ -1,11 +1,13 @@
 # -*- coding: utf-8 -*-
 
-TRAIN_PATH = '../../data/train/'
+COMMON_PATH = 'D:/GithubRepos/gitdata/wind-power-system/data'
 
-TEST_PATH = '../../data/test/'
+TRAIN_PATH = COMMON_PATH + '/train/'
 
-LABEL_PATH = '../../data/train_labels.csv'
+TEST_PATH = COMMON_PATH + '/test/'
 
-SUBMIT_SAMPLE_PATH = '../../data/submit_example.csv'
+LABEL_PATH = COMMON_PATH + '/train_labels.csv'
 
-SAVE_PATH = '../../result.csv'
+SUBMIT_SAMPLE_PATH = COMMON_PATH + '/submit_example.csv'
+
+SAVE_PATH = COMMON_PATH + '/result.csv'
