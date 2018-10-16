@@ -7,10 +7,13 @@ Created on Mon Jul 30 00:52:19 2018
 
 import pandas as pd
 import numpy as np
+np.seterr(invalid='ignore')
+
 from multiprocessing import Pool
 import os
 import pickle
 from tqdm import tqdm
+import config
 
 def get_feature(args):
     _file_path, mean_arr = args
@@ -66,37 +69,38 @@ def get_feature(args):
 
 if __name__ == '__main__':
 # =============================================================================
-#     '''mean_arr'''
-#     label = pd.read_csv('./data/train_labels.csv')
-#     mean_arr = {}
-#     for i, f1 in enumerate(os.listdir('./data/train/')):
-#         items = os.listdir('./data/train/'+f1)
-#         for item in items:
-#             try:
-#                 label.loc[label['file_name']==item].ret.values[0]
-#             except:
-#                 continue
-#             if label.loc[label['file_name']==item].ret.values[0] == 0:
-#                 _d = pd.read_csv('./data/train/'+f1 + '/' + item)
-#                 for col in _d.columns:
-#                     if col not in mean_arr:
-#                         mean_arr[col] = []
-#                     else:
-#                         mean_arr[col].append(_d[col].mean())
-#     for key in mean_arr.keys():
-#         mean_arr[key] = np.mean(mean_arr[key])
-#     with open('./mean_arr.plk', 'wb') as f:
-#         pickle.dump(mean_arr, f)
+    '''mean_arr'''
+    label = pd.read_csv(config.LABEL_PATH)
+    mean_arr = {}
+    for i, f1 in enumerate(os.listdir(config.TRAIN_PATH)):
+        print(i)
+        items = os.listdir(config.TRAIN_PATH+f1)
+        for item in items:
+            try:
+                label.loc[label['file_name']==item].ret.values[0]
+            except:
+                continue
+            if label.loc[label['file_name']==item].ret.values[0] == 0:
+                _d = pd.read_csv(config.TRAIN_PATH+f1 + '/' + item)
+                for col in _d.columns:
+                    if col not in mean_arr:
+                        mean_arr[col] = []
+                    else:
+                        mean_arr[col].append(_d[col].mean())
+    for key in mean_arr.keys():
+        mean_arr[key] = np.mean(mean_arr[key])
+    with open('./mean_arr.plk', 'wb') as f:
+        pickle.dump(mean_arr, f)
 # =============================================================================
     with open('./mean_arr.plk', 'rb') as f:
         mean_arr = pickle.load(f)
     '''args'''
-    processes = 12
+    processes = 6
     dict_result = {}
-    for f1 in tqdm(os.listdir('./data/train/')):
+    for f1 in tqdm(os.listdir(config.TRAIN_PATH)):
         with Pool(processes=processes) as pool:
-            nargs = os.listdir('./data/train/'+f1)
-            nargs = [('./data/train/'+f1 + '/' + _i, mean_arr) for _i in nargs]
+            nargs = os.listdir(config.TRAIN_PATH+f1)
+            nargs = [(config.TRAIN_PATH+f1 + '/' + _i, mean_arr) for _i in nargs]
             dict_temp = pool.map(get_feature, nargs)
         for item in dict_temp:
             dict_result.update(item)
