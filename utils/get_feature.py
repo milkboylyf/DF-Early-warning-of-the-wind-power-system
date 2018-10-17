@@ -96,29 +96,33 @@ def run():
         
     label = pd.read_csv(config.LABEL_PATH)
 # =============================================================================
-#     mean_arr = {}
-#     for f1 in tqdm(os.listdir(config.TRAIN_PATH)):
-#         items = os.listdir(config.TRAIN_PATH + f1)
-#         for item in items:
-#             try:
-#                 label.loc[label['file_name']==item].ret.values[0]
-#             except:
-#                 continue
-#             if label.loc[label['file_name']==item].ret.values[0] == 0:
-#                 _d = pd.read_csv(config.TRAIN_PATH + f1 + '/' + item)
-#                 for col in _d.columns:
-#                     if col not in mean_arr:
-#                         mean_arr[col] = []
-#                     else:
-#                         mean_arr[col].append(_d[col].mean())
-# # =============================================================================
-# #         break
-# # =============================================================================
-#     for key in mean_arr.keys():
-#         mean_arr[key] = np.mean(mean_arr[key])
+    mean_arr = {}
+    for f1 in tqdm(os.listdir(config.TRAIN_PATH)):
+        items = os.listdir(config.TRAIN_PATH + f1)
+        for item in items:
+            try:
+                label.loc[label['file_name']==item].ret.values[0]
+            except:
+                continue
+            if label.loc[label['file_name']==item].ret.values[0] == 0:
+                _d = pd.read_csv(config.TRAIN_PATH + f1 + '/' + item)
+                for col in _d.columns:
+                    if col not in mean_arr:
+                        mean_arr[col] = []
+                    else:
+                        mean_arr[col].append(_d[col].mean())
+# =============================================================================
+#         break
+# =============================================================================
+    for key in mean_arr.keys():
+        mean_arr[key] = np.mean(mean_arr[key])
+
 # =============================================================================
     import pickle
-    with open('../../../former/mean_arr.plk', 'rb') as f:
+    with open('./mean_arr.plk', 'wb') as f:
+        pickle.dump(mean_arr, f)
+
+    with open('./mean_arr.plk', 'rb') as f:
         mean_arr = pickle.load(f)
     # train
     dict_result = {}
@@ -144,7 +148,7 @@ def run():
     nargs = [(config.TEST_PATH + _i, mean_arr) for _i in nargs]
     for item in tqdm(nargs):
         dict_temp.append(get_feature(item))
-        break
+        # break
     for item in dict_temp:
         dict_result.update(item)
     test = pd.DataFrame(dict_result)

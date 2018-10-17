@@ -4,10 +4,11 @@ Created on Mon Jul 30 00:52:19 2018
 
 @author: SY
 """
+import warnings
+warnings.filterwarnings("ignore")
 
 import pandas as pd
 import numpy as np
-np.seterr(invalid='ignore')
 
 from multiprocessing import Pool
 import os
@@ -67,67 +68,66 @@ def get_feature(args):
     return _dict_return
 
 
-if __name__ == '__main__':
-# =============================================================================
-    '''mean_arr'''
-    label = pd.read_csv(config.LABEL_PATH)
-    mean_arr = {}
-    for i, f1 in enumerate(os.listdir(config.TRAIN_PATH)):
-        print(i)
-        items = os.listdir(config.TRAIN_PATH+f1)
-        for item in items:
-            try:
-                label.loc[label['file_name']==item].ret.values[0]
-            except:
-                continue
-            if label.loc[label['file_name']==item].ret.values[0] == 0:
-                _d = pd.read_csv(config.TRAIN_PATH+f1 + '/' + item)
-                for col in _d.columns:
-                    if col not in mean_arr:
-                        mean_arr[col] = []
-                    else:
-                        mean_arr[col].append(_d[col].mean())
-    for key in mean_arr.keys():
-        mean_arr[key] = np.mean(mean_arr[key])
-    with open('./mean_arr.plk', 'wb') as f:
-        pickle.dump(mean_arr, f)
-# =============================================================================
-    with open('./mean_arr.plk', 'rb') as f:
-        mean_arr = pickle.load(f)
-    '''args'''
-    processes = 6
-    dict_result = {}
-    for f1 in tqdm(os.listdir(config.TRAIN_PATH)):
-        with Pool(processes=processes) as pool:
-            nargs = os.listdir(config.TRAIN_PATH+f1)
-            nargs = [(config.TRAIN_PATH+f1 + '/' + _i, mean_arr) for _i in nargs]
-            dict_temp = pool.map(get_feature, nargs)
-        for item in dict_temp:
-            dict_result.update(item)
-    data = pd.DataFrame(dict_result)
-    data = data.T
-    data.columns = [str(i) + '_new' for i in data.columns]
-    data['file_name'] = data.index
-    data.to_csv('./data/train.csv', index=False)
-# =============================================================================
 # if __name__ == '__main__':
-#     t = time()
+# # =============================================================================
+#     '''mean_arr'''
+#     label = pd.read_csv(config.LABEL_PATH)
+#     mean_arr = {}
+#     for i, f1 in enumerate(os.listdir(config.TRAIN_PATH)):
+#         items = os.listdir(config.TRAIN_PATH+f1)
+#         for item in items:
+#             print(i, f1,item)
+#             try:
+#                 label.loc[label['file_name']==item].ret.values[0]
+#             except:
+#                 continue
+#             if label.loc[label['file_name']==item].ret.values[0] == 0:
+#                 _d = pd.read_csv(config.TRAIN_PATH+f1 + '/' + item)
+#                 for col in _d.columns:
+#                     if col not in mean_arr:
+#                         mean_arr[col] = []
+#                     else:
+#                         mean_arr[col].append(_d[col].mean())
+#     for key in mean_arr.keys():
+#         mean_arr[key] = np.mean(mean_arr[key])
+#     with open('./mean_arr.plk', 'wb') as f:
+#         pickle.dump(mean_arr, f)
+# # =============================================================================
 #     with open('./mean_arr.plk', 'rb') as f:
 #         mean_arr = pickle.load(f)
 #     '''args'''
-#     processes = 6 # 4
+#     processes = 6
 #     dict_result = {}
-#     with Pool(processes=processes) as pool:
-#         nargs = os.listdir('./data/test/')
-#         nargs = [('./data/test/' + _i, mean_arr) for _i in nargs]
-#         dict_temp = pool.map(get_feature, nargs)
-#     for item in dict_temp:
-#         dict_result.update(item)
-#     print((time() - t)/60)
-#     
+#     for f1 in tqdm(os.listdir(config.TRAIN_PATH)):
+#         with Pool(processes=processes) as pool:
+#             nargs = os.listdir(config.TRAIN_PATH+f1)
+#             nargs = [(config.TRAIN_PATH+f1 + '/' + _i, mean_arr) for _i in nargs]
+#             dict_temp = pool.map(get_feature, nargs)
+#         for item in dict_temp:
+#             dict_result.update(item)
 #     data = pd.DataFrame(dict_result)
 #     data = data.T
 #     data.columns = [str(i) + '_new' for i in data.columns]
 #     data['file_name'] = data.index
-#     data.to_csv('./data/test.csv', index=False)
+#     data.to_csv('./data/train.csv', index=False)
+# =============================================================================
+if __name__ == '__main__':
+    with open('./mean_arr.plk', 'rb') as f:
+        mean_arr = pickle.load(f)
+    '''args'''
+    processes = 6 # 4
+    dict_result = {}
+    with Pool(processes=processes) as pool:
+        nargs = os.listdir(config.TEST_PATH)
+        nargs = [(config.TEST_PATH + _i, mean_arr) for _i in nargs]
+        dict_temp = pool.map(get_feature, nargs)
+    print(type(dict_temp))
+    for item in dict_temp:
+        dict_result.update(item)
+
+    data = pd.DataFrame(dict_result)
+    data = data.T
+    data.columns = [str(i) + '_new' for i in data.columns]
+    data['file_name'] = data.index
+    data.to_csv('./data/test.csv', index=False)
 # =============================================================================

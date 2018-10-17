@@ -25,14 +25,17 @@ import config
 import pandas as pd
 
 # 生成特征文件
-data_ori = get_feature_ori.run()
-data = get_feature.run()
+# data_ori = get_feature_ori.run()
+# data_ori.to_csv("data/data_ori.csv", index=False, header=True, encoding='utf8')
 
+# data = get_feature.run()
+# data.to_csv("data/data.csv", index=False, header=True, encoding='utf8')
+
+data_ori = pd.read_csv("data/data_ori.csv")
+data = pd.read_csv("data/data.csv")
 
 result_1 = get_baseline.run(data_ori.copy())
-
 result_2 = get_multi_label.run(data.copy(), result_1.copy())
-
 result_3 = get_new_label.run(data.copy(), result_2.copy())
 
 # 存储

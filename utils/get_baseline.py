@@ -17,19 +17,24 @@ def run(data):
                 '258', '354', '360', '11', '276', '120', '158', '270', '246',
                 '372', '6', '12', '164', '342', '81', '57', '254', '252',
                 '63', '176', '374', '77']
-    lgb_params = {'boosting_type':'gbdt', 'num_leaves':150, 
-                  'reg_alpha':0., 'reg_lambda':1, 
-                  'n_estimators':60, 'objective':'binary',
-                  'subsample':0.9, 'colsample_bytree':0.9, 
-                  'learning_rate':0.1, 'min_child_weight':5}
-    s = CV(_df=train[['ret']+feat_arr], label_name='ret', 
-           random_state=3, is_val=False)
+    feat_arr = train.columns.drop(['file_name','ret']).tolist()
+    lgb_params = {'boosting_type':'gbdt',
+                  'num_leaves':150,
+                  'reg_alpha':0.,
+                  'reg_lambda':1,
+                  'n_estimators':60,
+                  'objective':'binary',
+                  'subsample':0.9,
+                  'colsample_bytree':0.9,
+                  'learning_rate':0.1,
+                  'min_child_weight':5}
+    s = CV(_df=train[['ret']+feat_arr], label_name='ret', random_state=3, is_val=False)
     s.CV(is_print=False, lgb_params=lgb_params, round_cv=3, n_splits=10)
     pred = s.get_result(test[feat_arr])
     result = test[['file_name']].reset_index(drop=True).copy()
     result['ret'] = pred
     result['ret'].loc[result['ret'] > 0.01] = 1
-    result['ret'].loc[result['ret'] <=0.01] = 0
+    result['ret'].loc[result['ret'] <= 0.01] = 0
     result = result.rename(columns={'file_name':'id'})
     return result
     

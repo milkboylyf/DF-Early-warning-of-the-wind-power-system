@@ -15,47 +15,43 @@ warnings.filterwarnings("ignore")
 
 
 class CV(object):
-    def __init__(self, _df, _val=None, 
-                 label_name='label', pred_col_name='score',
-                 random_state=575, is_val=True, val_size=0.3):
+    def __init__(self, _df, _val=None, label_name='label', pred_col_name='score',random_state=575, is_val=True,
+                 val_size=0.3):
         self.is_val = is_val
         if pred_col_name in _df.columns.tolist():
             self.score = _df[pred_col_name].values.tolist()
         else:
             self.score = None
+
         if label_name in _df.columns.tolist():
             self.label = _df[label_name].values.tolist()
         else:
             print("Attention! The dataset don't have the %s"%(label_name))
             self.label = None
+
         if _val is not None:
             self.df = _df
             self.val = _val
         else:
-            self.df, self.val, _, _ = train_test_split(_df, 
-                                                       _df[label_name], 
-                                                       test_size=val_size,
-                                                       random_state=random_state)
+            self.df, self.val, _, _ = train_test_split(_df, _df[label_name],test_size=val_size,random_state=random_state)
             if self.is_val:
                 self.df = self.df.reset_index(drop=True)
                 self.val = self.val.reset_index(drop=True)
             else:
                 self.df = _df
                 self.val = self.val.reset_index(drop=True)
+
         # others
-        self.random_state = random_state
-        self.label_name = label_name
-        self.pred_col_name = pred_col_name
+        self.random_state = random_state  # 随机数
+        self.label_name = label_name  # 标签名字
+        self.pred_col_name = pred_col_name  # 预测列名字
         self.AUC = 0
         self.find_best = None
         self.clf_arr = []
         self.MS_arr = None
 
-    
-    def CV(self, _df=None, _df_val=None, round_cv=3, 
-           n_splits=5, is_print=False, replace=False,
-           eval_metrics=roc_auc_score, 
-           use_lgb=True, lgb_params=None):
+    def CV(self, _df=None, _df_val=None, round_cv=3, n_splits=5, is_print=False, replace=False,
+           eval_metrics=roc_auc_score, use_lgb=True, lgb_params=None):
         '''init'''
         self.is_print = is_print
         self.eval_metrics = eval_metrics
@@ -169,4 +165,3 @@ class CV(object):
         clf.fit(train_x, train_y, eval_set=[(train_x_val, train_y_val)], eval_metric='auc',
                 early_stopping_rounds=100, verbose=False)
         return clf
-        

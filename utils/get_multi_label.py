@@ -33,9 +33,7 @@ def run(data, result_temp):
                              random_state=3)
     
     train_x, val_x, train_y, val_y = train_test_split(data.drop(['file_name', 'ret', 'multi_label'], axis=1), 
-                                                      data['multi_label'], 
-                                                      random_state=3, 
-                                                      test_size=0.3)
+                                                      data['multi_label'], random_state=3, test_size=0.3)
     clf.fit(train_x, train_y, verbose=False,early_stopping_rounds=100, eval_metric='logloss', eval_set=[(val_x, val_y)])
     
     pred_val = clf.predict(val_x)
