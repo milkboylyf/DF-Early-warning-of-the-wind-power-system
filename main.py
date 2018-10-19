@@ -35,7 +35,7 @@ data_ori = pd.read_csv("data/data_ori.csv")
 data = pd.read_csv("data/data.csv")
 
 result_1 = get_baseline.run(data_ori.copy())
-result_2 = get_multi_label.run(data.copy(), result_1.copy())
+result_2 = get_multi_label.run(data_ori.copy(), result_1.copy())
 result_3 = get_new_label.run(data.copy(), result_2.copy())
 
 # 存储
